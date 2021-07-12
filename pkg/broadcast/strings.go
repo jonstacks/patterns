@@ -4,14 +4,43 @@ package broadcast
 // string channels. The last parameter, propagateClose, determines if the output
 // channels are closed when the input channel is closed.
 func Strings(in <-chan string, out []chan string, propagateClose bool) {
+	StringsWithOptions(in, out, StringOptions{
+		nonBlocking:    false,
+		propagateClose: propagateClose,
+	})
+}
+
+// StringOptions control the behavior of how strings are broadcast by the
+// StringsWithOptions function.
+type StringOptions struct {
+	// If true, messages will be discarded rather than blocking the channel
+	nonBlocking bool
+	// If propagateClose is true, then a close message on the input
+	// will be broadcast to all output channels
+	propagateClose bool
+}
+
+// StringsWithOptions creates a new broadcast between the in string channel and
+// the out string channels. If the nonBlocking option is true, for channels which
+// are already at capacity, the message will be dropped rather than block. If the
+// propagateClose option is true, then closing the input channel will close all
+// channels that it is broadcasting to.
+func StringsWithOptions(in <-chan string, out []chan string, opts StringOptions) {
 	go func() {
 		for str := range in {
 			for _, c := range out {
-				c <- str
+				if opts.nonBlocking {
+					select {
+					case c <- str:
+					default:
+					}
+				} else {
+					c <- str
+				}
 			}
 		}
 
-		if propagateClose {
+		if opts.propagateClose {
 			for _, c := range out {
 				close(c)
 			}
