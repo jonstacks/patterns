@@ -5,8 +5,8 @@ package broadcast
 // channels are closed when the input channel is closed.
 func Strings(in <-chan string, out []chan string, propagateClose bool) {
 	StringsWithOptions(in, out, StringOptions{
-		nonBlocking:    false,
-		propagateClose: propagateClose,
+		NonBlocking:    false,
+		PropagateClose: propagateClose,
 	})
 }
 
@@ -14,10 +14,10 @@ func Strings(in <-chan string, out []chan string, propagateClose bool) {
 // StringsWithOptions function.
 type StringOptions struct {
 	// If true, messages will be discarded rather than blocking the channel
-	nonBlocking bool
+	NonBlocking bool
 	// If propagateClose is true, then a close message on the input
 	// will be broadcast to all output channels
-	propagateClose bool
+	PropagateClose bool
 }
 
 // StringsWithOptions creates a new broadcast between the in string channel and
@@ -29,7 +29,7 @@ func StringsWithOptions(in <-chan string, out []chan string, opts StringOptions)
 	go func() {
 		for str := range in {
 			for _, c := range out {
-				if opts.nonBlocking {
+				if opts.NonBlocking {
 					select {
 					case c <- str:
 					default:
@@ -40,7 +40,7 @@ func StringsWithOptions(in <-chan string, out []chan string, opts StringOptions)
 			}
 		}
 
-		if opts.propagateClose {
+		if opts.PropagateClose {
 			for _, c := range out {
 				close(c)
 			}
