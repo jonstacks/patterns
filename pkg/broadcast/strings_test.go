@@ -81,8 +81,8 @@ func TestStringsWithOptionsNonBlocking(t *testing.T) {
 	couts := []chan string{cout1, cout2}
 
 	StringsWithOptions(cin, couts, StringOptions{
-		nonBlocking:    true,
-		propagateClose: true,
+		NonBlocking:    true,
+		PropagateClose: true,
 	})
 	defer func() {
 		close(cin)
@@ -99,8 +99,8 @@ func TestStringsWithOptionsNonBlockingWithBufferedChannels(t *testing.T) {
 	couts := []chan string{cout1, cout2}
 
 	StringsWithOptions(cin, couts, StringOptions{
-		nonBlocking:    true,
-		propagateClose: true,
+		NonBlocking:    true,
+		PropagateClose: true,
 	})
 	defer func() {
 		close(cin)
